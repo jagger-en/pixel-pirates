@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 
-def normalize(items, delta, time_func, data_func, filler_func):
+def normalize(items, delta, time_func, filler_func):
     times = [time_func(item) for item in items]
     times.sort()
     earliest = times[0]
@@ -24,7 +24,7 @@ def normalize(items, delta, time_func, data_func, filler_func):
 
         if matches:
             for match in matches:
-                result.append((*data_func(match),
+                result.append((*match,
                             [left, right]))
         else:
             result.append((*filler_func(),
