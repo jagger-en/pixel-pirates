@@ -5,19 +5,20 @@ from matplotlib.animation import PillowWriter
 
 
 def create_animation_gif(file_path,
-                        normalized_points,
-                        title,
-                        y_label_name,
-                        x_label_name,
-                        x_lim,
-                        y_lim):
+                         normalized_points,
+                         title,
+                         y_label_name,
+                         x_label_name,
+                         x_lim,
+                         y_lim,
+                         frames_per_second):
     '''
     normalized_points: (x, y)
     '''
     frames = len(normalized_points)
 
     fig, ax = plt.subplots(1, 1)
-    fig.set_size_inches(5,5)
+    fig.set_size_inches(5, 5)
 
     def animate(idx):
         ax.clear()
@@ -43,7 +44,7 @@ def create_animation_gif(file_path,
     plt.close()
 
     ani.save(file_path, dpi=300,
-            writer=PillowWriter(fps=1))
+             writer=PillowWriter(fps=frames_per_second))
 
 
 # import matplotlib.pyplot as plt
