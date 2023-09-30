@@ -32,7 +32,7 @@ COLOR_4TH = (254, 24, 10, 128)
 
 RADIUS_CAR_CIRCLE_px = 2  # Toyota corolla
 RADIUS_OBJ_CIRCLE_px = 1  # We assume this size of an object
-ALARM_DIST = RADIUS_CAR_CIRCLE_px + RADIUS_CAR_CIRCLE_px * 0.5
+ALARM_DIST = RADIUS_CAR_CIRCLE_px * 5
 
 def calc_magnitude(left, right):
     return math.sqrt(left**2 + right**2)
@@ -64,6 +64,9 @@ def play(normalized_data):
 
     for idx, _ in enumerate(normalized_data[0]['pts']):
         for event in pygame.event.get():
+            if event.type == 771:
+                import time
+                time.sleep(1)
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
@@ -132,13 +135,18 @@ def play(normalized_data):
                     text_color = (0, 0, 0)
                     dist = calc_dist(0, 0, point['x'], point['y'])
 
-                    if dist <= ALARM_DIST:
+                    if scale_r(dist) <= scale_r(ALARM_DIST) * 1.5 + scale_r(RADIUS_OBJ_CIRCLE_px) * 1.5:
                         text_color = (255, 0, 0)
                         create_text(f'TOO CLOSE!',
                                     (text_x_3, text_y_2_base+text_y_2_fac*(rect_idx + 1)),
                                     text_color)
                         if int(os.getenv('SOUND_ON', 0)) == 1:
                             sound_the_horn()
+
+                    # Radius
+                    pygame.draw.circle(screen, COLOR_CENTER,
+                                       (scale_x(0), scale_y(0)),
+                                       scale_r(ALARM_DIST), width=1)
 
                     create_text(f'v={calc_magnitude(point["vx"], point["vy"]):.5} [m/s]',
                                 (text_x_2, text_y_2_base+text_y_2_fac*(rect_idx + 1)),
