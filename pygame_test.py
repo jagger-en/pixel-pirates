@@ -32,6 +32,7 @@ COLOR_4TH = (254, 24, 10, 128)
 
 RADIUS_CAR_CIRCLE_px = 2  # Toyota corolla
 RADIUS_OBJ_CIRCLE_px = 1  # We assume this size of an object
+ALARM_DIST = RADIUS_CAR_CIRCLE_px + RADIUS_CAR_CIRCLE_px * 0.5
 
 def calc_magnitude(left, right):
     return math.sqrt(left**2 + right**2)
@@ -90,8 +91,10 @@ def play(normalized_data):
             ##
             rect_top = 120
             rect_top_fac = 50
-            text_x_1 = 110
-            text_x_2 = 200
+            rect_x = 0
+            text_x_1 = 60
+            text_x_2 = 120
+            text_x_3 = 250
             text_y_2_base = 80
             text_y_2_fac = 50
             text_y_3_base = 100
@@ -100,9 +103,11 @@ def play(normalized_data):
             ##
             # General
             ##
-            def create_text(text, coords):
+            def create_text(text, coords, color=None):
+                if color is None:
+                    color = (0, 0, 0)
                 font = pygame.font.Font('freesansbold.ttf', FONT_SIZE)
-                text = font.render(text, True, (0, 0, 0), (255, 255, 255))
+                text = font.render(text, True, color, (255, 255, 255))
                 textRect = text.get_rect()
                 textRect.x = coords[0]
                 textRect.y = coords[1]
@@ -116,13 +121,22 @@ def play(normalized_data):
             ##
             def draw_legend_item(rect_idx, rect_name, rect_color):
                 pygame.draw.rect(screen, rect_color,
-                                pygame.Rect(rect_top_fac, rect_top+rect_top_fac*rect_idx, rect_top_fac, rect_top_fac))
+                                pygame.Rect(rect_x, rect_top+rect_top_fac*rect_idx, rect_top_fac, rect_top_fac))
                 create_text(rect_name, (text_x_1, text_y_2_base+text_y_2_fac*(rect_idx + 1)))
                 if data['name'] == rect_name:
+                    text_color = (0, 0, 0)
+                    dist = calc_dist(0, 0, point['x'], point['y'])
+                    if dist <= ALARM_DIST:
+                        text_color = (255, 0, 0)
+                        create_text(f'TOO CLOSE!',
+                                    (text_x_3, text_y_2_base+text_y_2_fac*(rect_idx + 1)),
+                                    text_color)
                     create_text(f'v={calc_magnitude(point["vx"], point["vy"]):.5} [m/s]',
-                                (text_x_2, text_y_2_base+text_y_2_fac*(rect_idx + 1)))
-                    create_text(f'd={calc_dist(0, 0, point["x"], point["y"]):.5} [m]',
-                                (text_x_2, text_y_3_base+text_y_3_fac*(rect_idx + 1)))
+                                (text_x_2, text_y_2_base+text_y_2_fac*(rect_idx + 1)),
+                                text_color)
+                    create_text(f'd={dist:.5} [m]',
+                                (text_x_2, text_y_3_base+text_y_3_fac*(rect_idx + 1)),
+                                text_color)
 
             draw_legend_item(0, 'Our car', COLOR_CENTER)
             draw_legend_item(1, '1st', COLOR_1ST)
