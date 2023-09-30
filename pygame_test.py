@@ -20,7 +20,7 @@ MAX_X = 120
 MIN_Y = -120
 MAX_Y = 120
 
-
+FONT_SIZE = 15
 COLOR_CENTER = (0, 0, 0)
 COLOR_1ST = (1, 168, 255)
 COLOR_2ND = (9, 230, 71)
@@ -28,8 +28,8 @@ COLOR_3RD = (230, 144, 9)
 COLOR_4TH = (254, 24, 10)
 
 
-def calc_magnitude(x, y):
-    return math.sqrt(x**2 + y**2)
+def calc_magnitude(left, right):
+    return math.sqrt(left**2 + right**2)
 
 def play(normalized_data):
     def scale_x(x):
@@ -53,75 +53,68 @@ def play(normalized_data):
 
         screen.fill(WHITE)
         for data in normalized_data:
-            # for point in data['pts']:
+            ##
+            # Color
+            ##
+            if data['name'] == '1st':
+                color = COLOR_1ST
+            if data['name'] == '2nd':
+                color = COLOR_2ND
+            if data['name'] == '3rd':
+                color = COLOR_3RD
+            if data['name'] == '4th':
+                color = COLOR_4TH
+
+            ##
+            # Circles
+            ##
             point = data['pts'][idx]
             object_x = scale_x(point['x'])
             object_y = scale_y(point['y'])
-            if data['name'] == '1st':
-                color = COLOR_1ST
-
-            if data['name'] == '2nd':
-                color = COLOR_2ND
-
-            if data['name'] == '3rd':
-                color = COLOR_3RD
-
-            if data['name'] == '4th':
-                color = COLOR_4TH
             pygame.draw.circle(screen, COLOR_CENTER,
                                (scale_x(0), scale_y(0)), 20)
             pygame.draw.circle(screen, color, (object_x, object_y), 12)
 
             ##
-            # Timestamp text
+            # Legend
             ##
-            def create_text(text, font_size, coords):
-                font = pygame.font.Font('freesansbold.ttf', font_size)
+            rect_top = 120
+            rect_top_fac = 50
+            text_x_1 = 110
+            text_x_2 = 200
+            text_y_2_base = 80
+            text_y_2_fac = 50
+
+            ##
+            # General
+            ##
+            def create_text(text, coords):
+                font = pygame.font.Font('freesansbold.ttf', FONT_SIZE)
                 text = font.render(text, True, (0, 0, 0), (255, 255, 255))
                 textRect = text.get_rect()
                 textRect.x = coords[0]
                 textRect.y = coords[1]
                 screen.blit(text, textRect)
-
-            timestamp = f"timestamp={point['t']:.5} [s]"
-            create_text(timestamp, 20, (100, 100))
-
-            velocity_of_vehicle = f"v={point['v']:.5} [m/s]"
-            create_text(velocity_of_vehicle, 15, (200, 80+50*1))
-
-            yaw_rate = f"yaw={point['yaw_rate']:.5}"
-            create_text(yaw_rate, 15, (200, 80+50*1+20))
+            create_text(f"timestamp={point['t']:.5} [s]", (text_x_1, 100))
+            create_text(f"v_car={point['v']:.5} [m/s]", (text_x_2, text_y_2_base+text_y_2_fac*1))
+            create_text(f"yaw={point['yaw_rate']:.5}", (text_x_2, text_y_2_base+text_y_2_fac*1+20))
 
             ##
             # Legend
             ##
-            pygame.draw.rect(screen, COLOR_CENTER,
-                             pygame.Rect(50, 120, 50, 50))
-            create_text('Our car', 20, (100, 80+50*1))
+            def draw_legend_item(rect_idx, rect_name, rect_color):
+                pygame.draw.rect(screen, rect_color,
+                                pygame.Rect(rect_top_fac, rect_top+rect_top_fac*rect_idx, rect_top_fac, rect_top_fac))
+                create_text(rect_name, (text_x_1, text_y_2_base+text_y_2_fac*(rect_idx + 1)))
+                if data['name'] == rect_name:
+                    create_text(f'v={calc_magnitude(point["vx"], point["vy"]):.5} [m/s]',
+                                (text_x_2, text_y_2_base+text_y_2_fac*(rect_idx + 1)))
 
-            pygame.draw.rect(screen, COLOR_1ST,
-                             pygame.Rect(50, 120+50*1, 50, 50))
-            create_text('1ST', 20, (100, 80+50*2))
-            if data['name'] == '1st':
-                create_text(f'v={calc_magnitude(point["vx"], point["vy"]):.5} [m/s]', 15, (200, 80+50*2))
-
-            pygame.draw.rect(screen, COLOR_2ND,
-                             pygame.Rect(50, 120+50*2, 50, 50))
-            create_text('2ND', 20, (100, 80+50*3))
-            if data['name'] == '2nd':
-                create_text(f'v={calc_magnitude(point["vx"], point["vy"]):.5} [m/s]', 15, (200, 80+50*3))
-
-            pygame.draw.rect(screen, COLOR_3RD,
-                             pygame.Rect(50, 120+50*3, 50, 50))
-            create_text('3RD', 20, (100, 80+50*4))
-            if data['name'] == '3rd':
-                create_text(f'v={calc_magnitude(point["vx"], point["vy"]):.5} [m/s]', 15, (200, 80+50*4))
-
-            pygame.draw.rect(screen, COLOR_4TH,
-                             pygame.Rect(50, 120+50*4, 50, 50))
-            create_text('4TH', 20, (100, 80+50*5))
-            if data['name'] == '4th':
-                create_text(f'v={calc_magnitude(point["vx"], point["vy"]):.5} [m/s]', 15, (200, 80+50*5))
+            draw_legend_item(0, 'Our car', COLOR_CENTER)
+            draw_legend_item(1, '1st', COLOR_1ST)
+            draw_legend_item(2, '2nd', COLOR_2ND)
+            draw_legend_item(3, '3rd', COLOR_3RD)
+            draw_legend_item(4, '4th', COLOR_4TH)
 
         pygame.display.flip()
         clock.tick(FPS)
