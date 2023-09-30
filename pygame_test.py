@@ -80,33 +80,33 @@ def play(normalized_data):
                 screen.blit(text, textRect)
 
             timestamp = f"timestamp={point['t']:.5} [s]"
-            create_text(timestamp, 20, (150, 100))
+            create_text(timestamp, 20, (100, 100))
 
             velocity_of_vehicle = f"v={point['v']:.5} [m/s]"
-            create_text(velocity_of_vehicle, 20, (300, 150))
+            create_text(velocity_of_vehicle, 20, (200, 150))
 
             ##
             # Legend
             ##
             pygame.draw.rect(screen, COLOR_CENTER,
                              pygame.Rect(50, 120, 50, 50))
-            create_text('CENTER', 20, (150, 100+50*1))
+            create_text('CENTER', 20, (100, 100+50*1))
 
             pygame.draw.rect(screen, COLOR_1ST,
                              pygame.Rect(50, 120+50*1, 50, 50))
-            create_text('1ST', 20, (150, 100+50*2))
+            create_text('1ST', 20, (100, 100+50*2))
 
             pygame.draw.rect(screen, COLOR_2ND,
                              pygame.Rect(50, 120+50*2, 50, 50))
-            create_text('2ND', 20, (150, 100+50*3))
+            create_text('2ND', 20, (100, 100+50*3))
 
             pygame.draw.rect(screen, COLOR_3RD,
                              pygame.Rect(50, 120+50*3, 50, 50))
-            create_text('3RD', 20, (150, 100+50*4))
+            create_text('3RD', 20, (100, 100+50*4))
 
             pygame.draw.rect(screen, COLOR_4TH,
                              pygame.Rect(50, 120+50*4, 50, 50))
-            create_text('4TH', 20, (150, 100+50*5))
+            create_text('4TH', 20, (100, 100+50*5))
 
         pygame.display.flip()
         clock.tick(FPS)
