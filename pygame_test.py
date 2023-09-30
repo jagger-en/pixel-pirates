@@ -31,6 +31,9 @@ COLOR_4TH = (254, 24, 10)
 def calc_magnitude(left, right):
     return math.sqrt(left**2 + right**2)
 
+def calc_dist(x1, y1, x2, y2):
+    return math.sqrt((y2 - y1)**2 + (x2 - x1)**2)
+
 def play(normalized_data):
     def scale_x(x):
         return pixelize.scale(given_value=x, right_lim=[MIN_X, MAX_X], left_lim=[0, WIDTH])
@@ -84,6 +87,8 @@ def play(normalized_data):
             text_x_2 = 200
             text_y_2_base = 80
             text_y_2_fac = 50
+            text_y_3_base = 100
+            text_y_3_fac = 50
 
             ##
             # General
@@ -109,6 +114,8 @@ def play(normalized_data):
                 if data['name'] == rect_name:
                     create_text(f'v={calc_magnitude(point["vx"], point["vy"]):.5} [m/s]',
                                 (text_x_2, text_y_2_base+text_y_2_fac*(rect_idx + 1)))
+                    create_text(f'd={calc_dist(0, 0, point["x"], point["y"]):.5} [m]',
+                                (text_x_2, text_y_3_base+text_y_3_fac*(rect_idx + 1)))
 
             draw_legend_item(0, 'Our car', COLOR_CENTER)
             draw_legend_item(1, '1st', COLOR_1ST)
