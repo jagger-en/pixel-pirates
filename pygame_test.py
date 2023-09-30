@@ -4,6 +4,7 @@ import sys
 import time
 import json
 from utils import pixelize
+import math
 
 WIDTH = 800
 HEIGHT = 600
@@ -26,6 +27,9 @@ COLOR_2ND = (9, 230, 71)
 COLOR_3RD = (230, 144, 9)
 COLOR_4TH = (254, 24, 10)
 
+
+def calc_magnitude(x, y):
+    return math.sqrt(x**2 + y**2)
 
 def play(normalized_data):
     def scale_x(x):
@@ -83,7 +87,7 @@ def play(normalized_data):
             create_text(timestamp, 20, (100, 100))
 
             velocity_of_vehicle = f"v={point['v']:.5} [m/s]"
-            create_text(velocity_of_vehicle, 20, (200, 150))
+            create_text(velocity_of_vehicle, 15, (200, 80+50*1))
 
             ##
             # Legend
@@ -96,30 +100,25 @@ def play(normalized_data):
                              pygame.Rect(50, 120+50*1, 50, 50))
             create_text('1ST', 20, (100, 80+50*2))
             if data['name'] == '1st':
-                create_text(f'vx={point["vx"]:.5} [m/s]', 15, (200, 80+50*2))
-                create_text(f'vy={point["vy"]:.5} [m/s]', 15, (200, 80+50*2+15))
-
+                create_text(f'v={calc_magnitude(point["vx"], point["vy"]):.5} [m/s]', 15, (200, 80+50*2))
 
             pygame.draw.rect(screen, COLOR_2ND,
                              pygame.Rect(50, 120+50*2, 50, 50))
             create_text('2ND', 20, (100, 80+50*3))
             if data['name'] == '2nd':
-                create_text(f'vx={point["vx"]:.5} [m/s]', 15, (200, 80+50*3))
-                create_text(f'vy={point["vy"]:.5} [m/s]', 15, (200, 80+50*3+15))
+                create_text(f'v={calc_magnitude(point["vx"], point["vy"]):.5} [m/s]', 15, (200, 80+50*3))
 
             pygame.draw.rect(screen, COLOR_3RD,
                              pygame.Rect(50, 120+50*3, 50, 50))
             create_text('3RD', 20, (100, 80+50*4))
             if data['name'] == '3rd':
-                create_text(f'vx={point["vx"]:.5} [m/s]', 15, (200, 80+50*4))
-                create_text(f'vy={point["vy"]:.5} [m/s]', 15, (200, 80+50*4+15))
+                create_text(f'v={calc_magnitude(point["vx"], point["vy"]):.5} [m/s]', 15, (200, 80+50*4))
 
             pygame.draw.rect(screen, COLOR_4TH,
                              pygame.Rect(50, 120+50*4, 50, 50))
             create_text('4TH', 20, (100, 80+50*5))
             if data['name'] == '4th':
-                create_text(f'vx={point["vx"]:.5} [m/s]', 15, (200, 80+50*5))
-                create_text(f'vy={point["vy"]:.5} [m/s]', 15, (200, 80+50*5+15))
+                create_text(f'v={calc_magnitude(point["vx"], point["vy"]):.5} [m/s]', 15, (200, 80+50*5))
 
         pygame.display.flip()
         clock.tick(FPS)
