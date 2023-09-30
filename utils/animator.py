@@ -22,11 +22,12 @@ MIN_R = 0
 MAX_R = 120
 
 FONT_SIZE = 15
-COLOR_CENTER = (128, 128, 212, 128)
+COLOR_CENTER = (128, 128, 128, 128)
+COLOR_TRIANGLE = (207, 181, 122, 128)
 
-RADIUS_CAR_CIRCLE_px = 2  # Toyota corolla
-RADIUS_OBJ_CIRCLE_px = 1  # We assume this size of an object
-ALARM_DIST = RADIUS_CAR_CIRCLE_px * 5
+RADIUS_CAR_CIRCLE_m = 2  # Toyota corolla
+RADIUS_OBJ_CIRCLE_m = 1  # We assume this size of an object
+ALARM_DIST = RADIUS_CAR_CIRCLE_m * 5
 
 
 def play(normalized_data, frames_per_second, object_names, object_colors):
@@ -72,9 +73,9 @@ def play(normalized_data, frames_per_second, object_names, object_colors):
             object_x = scale_x(point['x'])
             object_y = scale_y(point['y'])
             pygame.draw.circle(screen, COLOR_CENTER, (scale_x(
-                0), scale_y(0)), scale_r(RADIUS_CAR_CIRCLE_px))
+                0), scale_y(0)), scale_r(RADIUS_CAR_CIRCLE_m))
             pygame.draw.circle(
-                screen, color, (object_x, object_y), scale_r(RADIUS_OBJ_CIRCLE_px))
+                screen, color, (object_x, object_y), scale_r(RADIUS_OBJ_CIRCLE_m))
 
             ##
             # Legend
@@ -84,7 +85,10 @@ def play(normalized_data, frames_per_second, object_names, object_colors):
             rect_x = 0
             text_x_1 = 60
             text_x_2 = 120
-            text_x_3 = 250
+            text_x_3 = 700
+            text_x_4 = 750
+            text_y_1_base = 40
+            text_y_1_fac = 30
             text_y_2_base = 80
             text_y_2_fac = 50
             text_y_3_base = 100
@@ -120,15 +124,6 @@ def play(normalized_data, frames_per_second, object_names, object_colors):
                     text_color = (0, 0, 0)
                     dist = _calc_dist(0, 0, point['x'], point['y'])
 
-                    if scale_r(dist) <= scale_r(ALARM_DIST) * 1.5 + scale_r(RADIUS_OBJ_CIRCLE_px) * 1.5:
-                        text_color = (255, 0, 0)
-                        create_text(f'TOO CLOSE!',
-                                    (text_x_3, text_y_2_base +
-                                     text_y_2_fac*(rect_idx + 1)),
-                                    text_color)
-                        if int(os.getenv('SOUND_ON', 0)) == 1:
-                            _sound_the_horn()
-
                     # Radius
                     pygame.draw.circle(screen, COLOR_CENTER,
                                        (scale_x(0), scale_y(0)),
@@ -143,15 +138,75 @@ def play(normalized_data, frames_per_second, object_names, object_colors):
                                  text_y_3_fac*(rect_idx + 1)),
                                 text_color)
 
+            ##
+            # Triangle circles at the front of the camera
+            ##
+            RADIUS_TRIANGLE_CIRCLE_m = 1.5
+            def draw_triangle_circle(rect_idx, x, y):
+                triangle_circle_color = COLOR_TRIANGLE
+                dist = _calc_dist(x, y, point['x'], point['y'])
+
+                text_color = (0, 0, 0)
+                if dist <= RADIUS_TRIANGLE_CIRCLE_m * 1.5 + RADIUS_OBJ_CIRCLE_m * 1.5:
+                    triangle_circle_color = (255, 0, 0, 128)
+
+                    text_color = (255, 0, 0)
+                    create_text(f'!',
+                                (text_x_4, text_y_1_base +
+                                    text_y_1_fac*(rect_idx + 1)),
+                                text_color)
+
+                    if int(os.getenv('SOUND_ON', 0)) == 1:
+                        _sound_the_horn()
+
+                    create_text(f'slot #{rect_idx}', (text_x_3, text_y_1_base +
+                                text_y_1_fac*(rect_idx + 1)), text_color)
+
+
+                center = (scale_x(x + 2), scale_y(y))
+                radius = scale_r(RADIUS_TRIANGLE_CIRCLE_m)
+                _draw_circle_alpha(screen, triangle_circle_color, center, radius)
+
+            triangle_circles = [
+                (11, -6),
+                (8, -6),
+                (11, -3),
+                (8, -3),
+                (5, -3),
+                (11, 0),
+                (8, 0),
+                (5, 0),
+                (11, 3),
+                (8, 3),
+                (5, 3),
+                (11, 6),
+                (8, 6),
+            ]
+            _iterate_lights(draw_triangle_circle, triangle_circles)
+
             draw_legend_item(0, 'Our car', COLOR_CENTER)
-            iterate_legend(draw_legend_item, object_names,
+            _iterate_legend(draw_legend_item, object_names,
                            object_colors_mappings)
 
         pygame.display.flip()
         clock.tick(frames_per_second)
 
 
-def iterate_legend(func, object_names, object_colors_mappings):
+def _draw_circle_alpha(surface, color, center, radius):
+    target_rect = pygame.Rect(center, (0, 0)).inflate((radius * 2, radius * 2))
+    shape_surf = pygame.Surface(target_rect.size, pygame.SRCALPHA)
+    pygame.draw.circle(shape_surf, color, (radius, radius), radius)
+    surface.blit(shape_surf, target_rect)
+
+
+def _iterate_lights(func, triangle_circles):
+    for idx, triangle_circle in enumerate(triangle_circles):
+        x = triangle_circle[0]
+        y = triangle_circle[1]
+        func(idx + 1, x, y)
+
+
+def _iterate_legend(func, object_names, object_colors_mappings):
     for idx, obj_name in enumerate(object_names):
         func(idx + 1, obj_name, object_colors_mappings[obj_name])
 
