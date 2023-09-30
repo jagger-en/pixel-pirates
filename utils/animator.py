@@ -29,6 +29,22 @@ RADIUS_CAR_CIRCLE_m = 2  # Toyota corolla
 RADIUS_OBJ_CIRCLE_m = 1  # We assume this size of an object
 ALARM_DIST = RADIUS_CAR_CIRCLE_m * 5
 
+BIG_STATE = {'TRIANGLE_CIRCLES': [
+    (11, -6, {'status': 'ok', 'offender': ''}),
+    (8, -6, {'status': 'ok', 'offender': ''}),
+    (11, -3, {'status': 'ok', 'offender': ''}),
+    (8, -3, {'status': 'ok', 'offender': ''}),
+    (5, -3, {'status': 'ok', 'offender': ''}),
+    (11, 0, {'status': 'ok', 'offender': ''}),
+    (8, 0, {'status': 'ok', 'offender': ''}),
+    (5, 0, {'status': 'ok', 'offender': ''}),
+    (11, 3, {'status': 'ok', 'offender': ''}),
+    (8, 3, {'status': 'ok', 'offender': ''}),
+    (5, 3, {'status': 'ok', 'offender': ''}),
+    (11, 6, {'status': 'ok', 'offender': ''}),
+    (8, 6, {'status': 'ok', 'offender': ''}),
+]}
+
 
 def play(normalized_data, frames_per_second, object_names, object_colors):
     object_colors_mappings = {o: c for c,
@@ -85,6 +101,7 @@ def play(normalized_data, frames_per_second, object_names, object_colors):
             rect_x = 0
             text_x_1 = 60
             text_x_2 = 120
+            text_x_25 = 250
             text_x_3 = 700
             text_x_4 = 750
             text_y_1_base = 40
@@ -133,6 +150,18 @@ def play(normalized_data, frames_per_second, object_names, object_colors):
                                  text_y_3_fac*(rect_idx + 1)),
                                 text_color)
 
+                    matches = [tc for tc in BIG_STATE["TRIANGLE_CIRCLES"] if tc[2]['offender'] == rect_name]
+                    num_reds = len(matches)
+                    if num_reds >= 5:
+                        text_color = (255, 0, 0)
+                        create_text(f'Decelerating because of {rect_name}!',
+                                    (text_x_25, text_y_1_base),
+                                    (255, 0, 0))
+                    create_text(f'reds={num_reds}/{len(BIG_STATE["TRIANGLE_CIRCLES"])}',
+                                (text_x_25, text_y_3_base +
+                                    text_y_3_fac*(rect_idx + 1)),
+                                text_color)
+
             ##
             # Triangle circles at the front of the camera
             ##
@@ -158,26 +187,20 @@ def play(normalized_data, frames_per_second, object_names, object_colors):
                                 text_y_1_fac*(rect_idx + 1)), text_color)
 
 
+                    # Find corresponding triangle circle item and update status
+                    triangle_circles_new = []
+                    for tc in BIG_STATE['TRIANGLE_CIRCLES']:
+                        if tc[1] == y and tc[0] == x:
+                            tc[2]['status'] = 'red'
+                            tc[2]['offender'] = data['name']
+                        triangle_circles_new.append(tc)
+                    BIG_STATE['TRIANGLE_CIRCLES'] = triangle_circles_new
+
                 center = (scale_x(x + 0.1), scale_y(y))
                 radius = scale_r(RADIUS_TRIANGLE_CIRCLE_m)
                 _draw_circle_alpha(screen, triangle_circle_color, center, radius)
 
-            triangle_circles = [
-                (11, -6),
-                (8, -6),
-                (11, -3),
-                (8, -3),
-                (5, -3),
-                (11, 0),
-                (8, 0),
-                (5, 0),
-                (11, 3),
-                (8, 3),
-                (5, 3),
-                (11, 6),
-                (8, 6),
-            ]
-            _iterate_lights(draw_triangle_circle, triangle_circles)
+            _iterate_lights(draw_triangle_circle)
 
             draw_legend_item(0, 'Our car', COLOR_CENTER)
             _iterate_legend(draw_legend_item, object_names,
@@ -194,11 +217,11 @@ def _draw_circle_alpha(surface, color, center, radius):
     surface.blit(shape_surf, target_rect)
 
 
-def _iterate_lights(func, triangle_circles):
-    for idx, triangle_circle in enumerate(triangle_circles):
+def _iterate_lights(draw_triangle_circle):
+    for idx, triangle_circle in enumerate(BIG_STATE['TRIANGLE_CIRCLES']):
         x = triangle_circle[0]
         y = triangle_circle[1]
-        func(idx + 1, x, y)
+        draw_triangle_circle(idx + 1, x, y)
 
 
 def _iterate_legend(func, object_names, object_colors_mappings):
