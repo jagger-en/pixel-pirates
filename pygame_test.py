@@ -75,11 +75,15 @@ def play(normalized_data):
                 font = pygame.font.Font('freesansbold.ttf', font_size)
                 text = font.render(text, True, (0, 0, 0), (255, 255, 255))
                 textRect = text.get_rect()
-                textRect.center = coords
+                textRect.x = coords[0]
+                textRect.y = coords[1]
                 screen.blit(text, textRect)
 
-            timestamp = f"timestamp={point['t']:.5}"
+            timestamp = f"timestamp={point['t']:.5} [s]"
             create_text(timestamp, 20, (150, 100))
+
+            velocity_of_vehicle = f"v={point['v']:.5} [m/s]"
+            create_text(velocity_of_vehicle, 20, (300, 150))
 
             ##
             # Legend

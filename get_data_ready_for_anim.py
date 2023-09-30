@@ -16,15 +16,15 @@ parser.add_argument('-d', '--delta', required=True,
 args = parser.parse_args()
 
 
-def get_normalized_points(x_data, y_data, t_data):
+def get_normalized_points(x_data, y_data, t_data, v_data):
 
-    points = [i for i in zip(x_data, y_data, t_data)]
+    points = [i for i in zip(x_data, y_data, t_data, v_data)]
 
     def time_func(item):
         return item[2]
 
     def filler_func():
-        return (None, None, None)
+        return (None, None, None, None)
 
     result = ut_normalize(points, float(args.delta), time_func,
                           filler_func)
@@ -34,7 +34,8 @@ def get_normalized_points(x_data, y_data, t_data):
             'x': pt[0],
             'y': pt[1],
             't': pt[2],
-            't_bucket': pt[3]
+            'v': pt[3],
+            't_bucket': pt[4]
         } for pt in result
     ]
     return normalized_points
@@ -50,7 +51,8 @@ for object in ['1st', '2nd', '3rd', '4th']:
     x_data = df[f'{object}ODist_X [m]']
     y_data = df[f'{object}ODist_Y [m]']
     t_data = df['Timestamp']
-    pts = get_normalized_points(x_data, y_data, t_data)
+    v_data = df['VehicleSpeed [m/s]']
+    pts = get_normalized_points(x_data, y_data, t_data, v_data)
 
     print(f'==> [{object}]: {len(t_data)} timestamps,',
           f'{len(pts)} normalized points')
