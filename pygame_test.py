@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import pygame
 import sys
-import time
+import os
 import json
 from utils import pixelize
 import math
@@ -137,7 +137,8 @@ def play(normalized_data):
                         create_text(f'TOO CLOSE!',
                                     (text_x_3, text_y_2_base+text_y_2_fac*(rect_idx + 1)),
                                     text_color)
-                        sound_the_horn()
+                        if int(os.getenv('SOUND_ON', 0)) == 1:
+                            sound_the_horn()
 
                     create_text(f'v={calc_magnitude(point["vx"], point["vy"]):.5} [m/s]',
                                 (text_x_2, text_y_2_base+text_y_2_fac*(rect_idx + 1)),
