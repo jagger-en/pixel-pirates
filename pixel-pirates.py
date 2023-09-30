@@ -30,6 +30,10 @@ parser.add_argument('-i', '--input-file', required=True,
                     dest='input_file')
 parser.add_argument('-f', '--fps', required=True,
                     dest='fps')
+parser.add_argument('-o', '--objects', required=True,
+                    dest='objects')
+parser.add_argument('-c', '--object-colors', required=True,
+                    dest='object_colors')
 args = parser.parse_args()
 
 
@@ -43,6 +47,9 @@ normalized_data = normalize_df(cleaned_df, delta=0.1)
 logger.info('Normalized data.')
 
 logger.info('Loading animation...')
-play(normalized_data, frames_per_second=float(args.fps))
+play(normalized_data,
+     frames_per_second=float(args.fps),
+     objects=args.objects.split(','),
+     object_colors=[tuple([int(i) for i in c.split(':')]) for c in args.object_colors.split(',')])
 
 logger.info('DONE')

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os
+import random
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
 import sys
@@ -22,17 +23,14 @@ MAX_R = 120
 
 FONT_SIZE = 15
 COLOR_CENTER = (127, 255, 212, 128)
-COLOR_1ST = (1, 168, 255, 128)
-COLOR_2ND = (9, 230, 71, 128)
-COLOR_3RD = (230, 144, 9, 128)
-COLOR_4TH = (254, 24, 10, 128)
 
 RADIUS_CAR_CIRCLE_px = 2  # Toyota corolla
 RADIUS_OBJ_CIRCLE_px = 1  # We assume this size of an object
 ALARM_DIST = RADIUS_CAR_CIRCLE_px * 5
 
 
-def play(normalized_data, frames_per_second):
+def play(normalized_data, frames_per_second, objects, object_colors):
+    object_colors_mappings = {o:c for c, o in zip(object_colors, objects)}
     def scale_x(x):
         return scaler.scale_linearly(given_value=x, right_lim=[MIN_X, MAX_X], left_lim=[0, WIDTH])
 
@@ -63,14 +61,7 @@ def play(normalized_data, frames_per_second):
             ##
             # Color
             ##
-            if data['name'] == '1st':
-                color = COLOR_1ST
-            if data['name'] == '2nd':
-                color = COLOR_2ND
-            if data['name'] == '3rd':
-                color = COLOR_3RD
-            if data['name'] == '4th':
-                color = COLOR_4TH
+            color = object_colors_mappings[data['name']]
 
             ##
             # Circles
@@ -151,10 +142,10 @@ def play(normalized_data, frames_per_second):
                                 text_color)
 
             draw_legend_item(0, 'Our car', COLOR_CENTER)
-            draw_legend_item(1, '1st', COLOR_1ST)
-            draw_legend_item(2, '2nd', COLOR_2ND)
-            draw_legend_item(3, '3rd', COLOR_3RD)
-            draw_legend_item(4, '4th', COLOR_4TH)
+            draw_legend_item(1, '1st', object_colors_mappings['1st'])
+            draw_legend_item(2, '2nd', object_colors_mappings['2nd'])
+            draw_legend_item(3, '3rd', object_colors_mappings['3rd'])
+            draw_legend_item(4, '4th', object_colors_mappings['4th'])
 
         pygame.display.flip()
         clock.tick(frames_per_second)
@@ -171,3 +162,13 @@ def _calc_dist(x1, y1, x2, y2):
 def _sound_the_horn():
     horn_sound = pygame.mixer.Sound("media/horn.wav")
     horn_sound.play()
+
+
+def generate_colors(num_colors):
+    r = _get_random_num(0, 255)
+    g = _get_random_num(0, 255)
+    b = _get_random_num(0, 255)
+    return [(r, g, b) for _ in range(num_colors)]
+
+def _get_random_num(start, end):
+    return random.randint(start, end)
