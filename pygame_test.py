@@ -61,6 +61,16 @@ def play(normalized_data):
             pygame.draw.circle(screen, (0, 0, 255), (scale_x(0), scale_y(0)), 20)
             pygame.draw.circle(screen, color, (object_x, object_y), 12)
 
+            ##
+            ## Timestamp text
+            ##
+            timestamp = f"timestamp={point['t']:.5}"
+            font = pygame.font.Font('freesansbold.ttf', 25)
+            text = font.render(timestamp, True, (0, 0, 0), (255, 255, 255))
+            textRect = text.get_rect()
+            textRect.center = (WIDTH / 4, HEIGHT / 4)
+            screen.blit(text, textRect)
+
         pygame.display.flip()
         clock.tick(FPS)
 
