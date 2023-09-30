@@ -124,11 +124,6 @@ def play(normalized_data, frames_per_second, object_names, object_colors):
                     text_color = (0, 0, 0)
                     dist = _calc_dist(0, 0, point['x'], point['y'])
 
-                    # Radius
-                    pygame.draw.circle(screen, COLOR_CENTER,
-                                       (scale_x(0), scale_y(0)),
-                                       scale_r(ALARM_DIST), width=1)
-
                     create_text(f'v={_calc_magnitude(point["vx"], point["vy"]):.5} [m/s]',
                                 (text_x_2, text_y_2_base +
                                  text_y_2_fac*(rect_idx + 1)),
@@ -141,7 +136,7 @@ def play(normalized_data, frames_per_second, object_names, object_colors):
             ##
             # Triangle circles at the front of the camera
             ##
-            RADIUS_TRIANGLE_CIRCLE_m = 1.5
+            RADIUS_TRIANGLE_CIRCLE_m = 1
             def draw_triangle_circle(rect_idx, x, y):
                 triangle_circle_color = COLOR_TRIANGLE
                 dist = _calc_dist(x, y, point['x'], point['y'])
@@ -163,7 +158,7 @@ def play(normalized_data, frames_per_second, object_names, object_colors):
                                 text_y_1_fac*(rect_idx + 1)), text_color)
 
 
-                center = (scale_x(x + 2), scale_y(y))
+                center = (scale_x(x + 0.1), scale_y(y))
                 radius = scale_r(RADIUS_TRIANGLE_CIRCLE_m)
                 _draw_circle_alpha(screen, triangle_circle_color, center, radius)
 
