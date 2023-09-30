@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import unittest
-from pixelize import scale
+from scaler import scale_linearly
+
 
 class TestPixelizer(unittest.TestCase):
 
@@ -15,9 +16,8 @@ class TestPixelizer(unittest.TestCase):
         ]
 
         for given_value, expected_mapped_value, right_lim, left_lim in test_data:
-            mapped_value = scale(given_value, left_lim, right_lim)
+            mapped_value = scale_linearly(given_value, left_lim, right_lim)
             self.assertEqual(mapped_value, expected_mapped_value)
-
 
 
 if __name__ == "__main__":

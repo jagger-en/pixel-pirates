@@ -1,18 +1,15 @@
 #!/usr/bin/env python3
+import os
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
 import sys
-import os
-import json
-from utils import pixelize
+from utils import scaler
 import math
 
 WIDTH = 800
 HEIGHT = 600
-FPS = 20
 
 WHITE = (255, 255, 255)
-GREEN = (50, 200, 50)
-
 
 MIN_X = -120
 MAX_X = 120
@@ -34,30 +31,20 @@ RADIUS_CAR_CIRCLE_px = 2  # Toyota corolla
 RADIUS_OBJ_CIRCLE_px = 1  # We assume this size of an object
 ALARM_DIST = RADIUS_CAR_CIRCLE_px * 5
 
-def calc_magnitude(left, right):
-    return math.sqrt(left**2 + right**2)
 
-def calc_dist(x1, y1, x2, y2):
-    return math.sqrt((y2 - y1)**2 + (x2 - x1)**2)
-
-def sound_the_horn():
-    horn_sound = pygame.mixer.Sound("Media/horn.wav")
-    horn_sound.play()
-
-
-def play(normalized_data):
+def play(normalized_data, frames_per_second):
     def scale_x(x):
-        return pixelize.scale(given_value=x, right_lim=[MIN_X, MAX_X], left_lim=[0, WIDTH])
+        return scaler.scale_linearly(given_value=x, right_lim=[MIN_X, MAX_X], left_lim=[0, WIDTH])
 
     def scale_y(y):
-        return pixelize.scale(given_value=y, right_lim=[MIN_Y, MAX_Y], left_lim=[0, HEIGHT])
+        return scaler.scale_linearly(given_value=y, right_lim=[MIN_Y, MAX_Y], left_lim=[0, HEIGHT])
 
     def scale_r(r):
-        return pixelize.scale(given_value=r, right_lim=[0, MAX_R], left_lim=[0, HEIGHT])
+        return scaler.scale_linearly(given_value=r, right_lim=[0, MAX_R], left_lim=[0, HEIGHT])
     pygame.init()
 
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption("Visualization")
+    pygame.display.set_caption("Pixel Pirates Animation")
 
     # Object properties
     clock = pygame.time.Clock()
@@ -91,8 +78,10 @@ def play(normalized_data):
             point = data['pts'][idx]
             object_x = scale_x(point['x'])
             object_y = scale_y(point['y'])
-            pygame.draw.circle(screen, COLOR_CENTER, (scale_x(0), scale_y(0)), scale_r(RADIUS_CAR_CIRCLE_px))
-            pygame.draw.circle(screen, color, (object_x, object_y), scale_r(RADIUS_OBJ_CIRCLE_px))
+            pygame.draw.circle(screen, COLOR_CENTER, (scale_x(
+                0), scale_y(0)), scale_r(RADIUS_CAR_CIRCLE_px))
+            pygame.draw.circle(
+                screen, color, (object_x, object_y), scale_r(RADIUS_OBJ_CIRCLE_px))
 
             ##
             # Legend
@@ -121,38 +110,44 @@ def play(normalized_data):
                 textRect.y = coords[1]
                 screen.blit(text, textRect)
             create_text(f"timestamp={point['t']:.5} [s]", (text_x_1, 100))
-            create_text(f"v_car={point['v']:.5} [m/s]", (text_x_2, text_y_2_base+text_y_2_fac*1))
-            create_text(f"yaw={point['yaw_rate']:.5}", (text_x_2, text_y_2_base+text_y_2_fac*1+20))
+            create_text(f"v_car={point['v']:.5} [m/s]",
+                        (text_x_2, text_y_2_base+text_y_2_fac*1))
+            create_text(f"yaw={point['yaw_rate']:.5}",
+                        (text_x_2, text_y_2_base+text_y_2_fac*1+20))
 
             ##
             # Legend
             ##
             def draw_legend_item(rect_idx, rect_name, rect_color):
                 pygame.draw.rect(screen, rect_color,
-                                pygame.Rect(rect_x, rect_top+rect_top_fac*rect_idx, rect_top_fac, rect_top_fac))
-                create_text(rect_name, (text_x_1, text_y_2_base+text_y_2_fac*(rect_idx + 1)))
+                                 pygame.Rect(rect_x, rect_top+rect_top_fac*rect_idx, rect_top_fac, rect_top_fac))
+                create_text(rect_name, (text_x_1, text_y_2_base +
+                            text_y_2_fac*(rect_idx + 1)))
                 if data['name'] == rect_name:
                     text_color = (0, 0, 0)
-                    dist = calc_dist(0, 0, point['x'], point['y'])
+                    dist = _calc_dist(0, 0, point['x'], point['y'])
 
                     if scale_r(dist) <= scale_r(ALARM_DIST) * 1.5 + scale_r(RADIUS_OBJ_CIRCLE_px) * 1.5:
                         text_color = (255, 0, 0)
                         create_text(f'TOO CLOSE!',
-                                    (text_x_3, text_y_2_base+text_y_2_fac*(rect_idx + 1)),
+                                    (text_x_3, text_y_2_base +
+                                     text_y_2_fac*(rect_idx + 1)),
                                     text_color)
                         if int(os.getenv('SOUND_ON', 0)) == 1:
-                            sound_the_horn()
+                            _sound_the_horn()
 
                     # Radius
                     pygame.draw.circle(screen, COLOR_CENTER,
                                        (scale_x(0), scale_y(0)),
                                        scale_r(ALARM_DIST), width=1)
 
-                    create_text(f'v={calc_magnitude(point["vx"], point["vy"]):.5} [m/s]',
-                                (text_x_2, text_y_2_base+text_y_2_fac*(rect_idx + 1)),
+                    create_text(f'v={_calc_magnitude(point["vx"], point["vy"]):.5} [m/s]',
+                                (text_x_2, text_y_2_base +
+                                 text_y_2_fac*(rect_idx + 1)),
                                 text_color)
                     create_text(f'd={dist:.5} [m]',
-                                (text_x_2, text_y_3_base+text_y_3_fac*(rect_idx + 1)),
+                                (text_x_2, text_y_3_base +
+                                 text_y_3_fac*(rect_idx + 1)),
                                 text_color)
 
             draw_legend_item(0, 'Our car', COLOR_CENTER)
@@ -162,14 +157,17 @@ def play(normalized_data):
             draw_legend_item(4, '4th', COLOR_4TH)
 
         pygame.display.flip()
-        clock.tick(FPS)
+        clock.tick(frames_per_second)
 
 
-def load_data():
-    with open('cleaned/normalized.json', 'r', encoding='utf-8') as f:
-        return json.loads(f.read())
+def _calc_magnitude(left, right):
+    return math.sqrt(left**2 + right**2)
 
 
-normalized_data = load_data()
+def _calc_dist(x1, y1, x2, y2):
+    return math.sqrt((y2 - y1)**2 + (x2 - x1)**2)
 
-play(normalized_data)
+
+def _sound_the_horn():
+    horn_sound = pygame.mixer.Sound("media/horn.wav")
+    horn_sound.play()
