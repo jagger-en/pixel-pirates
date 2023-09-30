@@ -8,7 +8,7 @@ import math
 
 WIDTH = 800
 HEIGHT = 600
-FPS = 10
+FPS = 20
 
 WHITE = (255, 255, 255)
 GREEN = (50, 200, 50)
@@ -20,13 +20,18 @@ MAX_X = 120
 MIN_Y = -120
 MAX_Y = 120
 
-FONT_SIZE = 15
-COLOR_CENTER = (0, 0, 0)
-COLOR_1ST = (1, 168, 255)
-COLOR_2ND = (9, 230, 71)
-COLOR_3RD = (230, 144, 9)
-COLOR_4TH = (254, 24, 10)
+MIN_R = 0
+MAX_R = 120
 
+FONT_SIZE = 15
+COLOR_CENTER = (127, 255, 212, 128)
+COLOR_1ST = (1, 168, 255, 128)
+COLOR_2ND = (9, 230, 71, 128)
+COLOR_3RD = (230, 144, 9, 128)
+COLOR_4TH = (254, 24, 10, 128)
+
+RADIUS_CAR_CIRCLE_px = 2  # Toyota corolla
+RADIUS_OBJ_CIRCLE_px = 1  # We assume this size of an object
 
 def calc_magnitude(left, right):
     return math.sqrt(left**2 + right**2)
@@ -40,6 +45,9 @@ def play(normalized_data):
 
     def scale_y(y):
         return pixelize.scale(given_value=y, right_lim=[MIN_Y, MAX_Y], left_lim=[0, HEIGHT])
+
+    def scale_r(r):
+        return pixelize.scale(given_value=r, right_lim=[0, MAX_R], left_lim=[0, HEIGHT])
     pygame.init()
 
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -74,9 +82,8 @@ def play(normalized_data):
             point = data['pts'][idx]
             object_x = scale_x(point['x'])
             object_y = scale_y(point['y'])
-            pygame.draw.circle(screen, COLOR_CENTER,
-                               (scale_x(0), scale_y(0)), 20)
-            pygame.draw.circle(screen, color, (object_x, object_y), 12)
+            pygame.draw.circle(screen, COLOR_CENTER, (scale_x(0), scale_y(0)), scale_r(RADIUS_CAR_CIRCLE_px))
+            pygame.draw.circle(screen, color, (object_x, object_y), scale_r(RADIUS_OBJ_CIRCLE_px))
 
             ##
             # Legend
