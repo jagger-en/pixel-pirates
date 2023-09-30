@@ -7,7 +7,7 @@ from utils import pixelize
 
 WIDTH = 800
 HEIGHT = 600
-FPS = 20
+FPS = 10
 
 WHITE = (255, 255, 255)
 GREEN = (50, 200, 50)
@@ -90,23 +90,36 @@ def play(normalized_data):
             ##
             pygame.draw.rect(screen, COLOR_CENTER,
                              pygame.Rect(50, 120, 50, 50))
-            create_text('CENTER', 20, (100, 100+50*1))
+            create_text('Our car', 20, (100, 80+50*1))
 
             pygame.draw.rect(screen, COLOR_1ST,
                              pygame.Rect(50, 120+50*1, 50, 50))
-            create_text('1ST', 20, (100, 100+50*2))
+            create_text('1ST', 20, (100, 80+50*2))
+            if data['name'] == '1st':
+                create_text(f'vx={point["vx"]:.5} [m/s]', 15, (200, 80+50*2))
+                create_text(f'vy={point["vy"]:.5} [m/s]', 15, (200, 80+50*2+15))
+
 
             pygame.draw.rect(screen, COLOR_2ND,
                              pygame.Rect(50, 120+50*2, 50, 50))
-            create_text('2ND', 20, (100, 100+50*3))
+            create_text('2ND', 20, (100, 80+50*3))
+            if data['name'] == '2nd':
+                create_text(f'vx={point["vx"]:.5} [m/s]', 15, (200, 80+50*3))
+                create_text(f'vy={point["vy"]:.5} [m/s]', 15, (200, 80+50*3+15))
 
             pygame.draw.rect(screen, COLOR_3RD,
                              pygame.Rect(50, 120+50*3, 50, 50))
-            create_text('3RD', 20, (100, 100+50*4))
+            create_text('3RD', 20, (100, 80+50*4))
+            if data['name'] == '3rd':
+                create_text(f'vx={point["vx"]:.5} [m/s]', 15, (200, 80+50*4))
+                create_text(f'vy={point["vy"]:.5} [m/s]', 15, (200, 80+50*4+15))
 
             pygame.draw.rect(screen, COLOR_4TH,
                              pygame.Rect(50, 120+50*4, 50, 50))
-            create_text('4TH', 20, (100, 100+50*5))
+            create_text('4TH', 20, (100, 80+50*5))
+            if data['name'] == '4th':
+                create_text(f'vx={point["vx"]:.5} [m/s]', 15, (200, 80+50*5))
+                create_text(f'vy={point["vy"]:.5} [m/s]', 15, (200, 80+50*5+15))
 
         pygame.display.flip()
         clock.tick(FPS)
