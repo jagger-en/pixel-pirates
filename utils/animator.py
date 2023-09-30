@@ -22,7 +22,7 @@ MIN_R = 0
 MAX_R = 120
 
 FONT_SIZE = 15
-COLOR_CENTER = (128, 128, 128, 128)
+COLOR_CENTER = (128, 128, 212, 128)
 
 RADIUS_CAR_CIRCLE_px = 2  # Toyota corolla
 RADIUS_OBJ_CIRCLE_px = 1  # We assume this size of an object
@@ -30,7 +30,8 @@ ALARM_DIST = RADIUS_CAR_CIRCLE_px * 5
 
 
 def play(normalized_data, frames_per_second, object_names, object_colors):
-    object_colors_mappings = {o: c for c, o in zip(object_colors, object_names)}
+    object_colors_mappings = {o: c for c,
+                              o in zip(object_colors, object_names)}
 
     def scale_x(x):
         return scaler.scale_linearly(given_value=x, right_lim=[MIN_X, MAX_X], left_lim=[0, WIDTH])
@@ -143,7 +144,8 @@ def play(normalized_data, frames_per_second, object_names, object_colors):
                                 text_color)
 
             draw_legend_item(0, 'Our car', COLOR_CENTER)
-            iterate_legend(draw_legend_item, object_names, object_colors_mappings)
+            iterate_legend(draw_legend_item, object_names,
+                           object_colors_mappings)
 
         pygame.display.flip()
         clock.tick(frames_per_second)
