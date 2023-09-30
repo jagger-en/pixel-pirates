@@ -1,59 +1,74 @@
+#!/usr/bin/env python3
 import pygame
 import sys
-import pandas as pd
+import time
+import json
+from utils import pixelize
 
-pygame.init()
-
-WIDTH, HEIGHT = 800, 600
-FPS = 60
+WIDTH = 800
+HEIGHT = 600
+FPS = 20
 
 WHITE = (255, 255, 255)
+GREEN = (50, 200, 50)
 
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Visualization")
 
-# Load object speed data from CSV
-df = pd.read_csv('Dev_data.csv')
-speed_data = df[['1stODist_X [m]', '1stODist_Y [m]', 'Timestamp']].values.tolist()
+MIN_X = -120
+MAX_X = 120
 
-# Object properties
-object_x, object_y = WIDTH // 2, HEIGHT // 2
-current_speed_index = 0
-object_speed_x, object_speed_y, timestamp = speed_data[current_speed_index]
+MIN_Y = -120
+MAX_Y = 120
 
-# Game loop
-clock = pygame.time.Clock()
-start_time = pygame.time.get_ticks() / 1000.0  # Convert milliseconds to seconds
 
-while True:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
+def play(normalized_data):
+    def scale_x(x):
+        return pixelize.scale(given_value=x, right_lim=[MIN_X, MAX_X], left_lim=[0, WIDTH])
 
-    # elapsed_time (since game started)
-    elapsed_time = (pygame.time.get_ticks() / 1000.0) - start_time
+    def scale_y(y):
+        return pixelize.scale(given_value=y, right_lim=[MIN_Y, MAX_Y], left_lim=[0, HEIGHT])
+    pygame.init()
 
-    # Object speed update??
-    while current_speed_index < len(speed_data) - 1 and elapsed_time >= timestamp:
-        current_speed_index += 1
-        object_speed_x, object_speed_y, timestamp = speed_data[current_speed_index]
+    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    pygame.display.set_caption("Visualization")
 
-    # Update object position based on speed
-    object_x += object_speed_x
-    object_y += object_speed_y
 
-    # Wrap object around the screen if it goes off the edges
-    if object_x > WIDTH:
-        object_x = 0
-    if object_x < 0:
-        object_x = WIDTH
-    if object_y > HEIGHT:
-        object_y = 0
-    if object_y < 0:
-        object_y = HEIGHT
+    # Object properties
+    clock = pygame.time.Clock()
 
-    screen.fill(WHITE)
-    pygame.draw.circle(screen, (0, 0, 255), (int(object_x), int(object_y)), 20)
-    pygame.display.flip()
-    clock.tick(FPS)
+    for idx, _ in enumerate(normalized_data[0]['pts']):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+        screen.fill(WHITE)
+        for data in normalized_data:
+            # for point in data['pts']:
+            point = data['pts'][idx]
+            object_x = scale_x(point['x'])
+            object_y = scale_y(point['y'])
+            if data['name'] == '1st':
+                color = (0, 255, 0)
+
+            if data['name'] == '2nd':
+                color = (255, 0, 0)
+
+            if data['name'] == '3rd':
+                color = (255, 0, 255)
+
+            if data['name'] == '4th':
+                color = (0, 0, 0)
+            pygame.draw.circle(screen, (0, 0, 255), (scale_x(0), scale_y(0)), 20)
+            pygame.draw.circle(screen, color, (object_x, object_y), 12)
+
+        pygame.display.flip()
+        clock.tick(FPS)
+
+
+def load_data():
+    with open('cleaned/normalized.json', 'r', encoding='utf-8') as f:
+        return json.loads(f.read())
+
+normalized_data = load_data()
+
+play(normalized_data)

@@ -26,7 +26,8 @@ def normalize(items, delta, time_func, filler_func):
             for match in matches:
                 result.append((*match,
                             [left, right]))
+                prev = match
         else:
-            result.append((*filler_func(),
+            result.append((*prev,
                            [left, right]))
     return result
