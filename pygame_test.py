@@ -40,6 +40,11 @@ def calc_magnitude(left, right):
 def calc_dist(x1, y1, x2, y2):
     return math.sqrt((y2 - y1)**2 + (x2 - x1)**2)
 
+def sound_the_horn():
+    horn_sound = pygame.mixer.Sound("Media/horn.wav")
+    horn_sound.play()
+
+
 def play(normalized_data):
     def scale_x(x):
         return pixelize.scale(given_value=x, right_lim=[MIN_X, MAX_X], left_lim=[0, WIDTH])
@@ -126,11 +131,14 @@ def play(normalized_data):
                 if data['name'] == rect_name:
                     text_color = (0, 0, 0)
                     dist = calc_dist(0, 0, point['x'], point['y'])
+
                     if dist <= ALARM_DIST:
                         text_color = (255, 0, 0)
                         create_text(f'TOO CLOSE!',
                                     (text_x_3, text_y_2_base+text_y_2_fac*(rect_idx + 1)),
                                     text_color)
+                        sound_the_horn()
+
                     create_text(f'v={calc_magnitude(point["vx"], point["vy"]):.5} [m/s]',
                                 (text_x_2, text_y_2_base+text_y_2_fac*(rect_idx + 1)),
                                 text_color)
