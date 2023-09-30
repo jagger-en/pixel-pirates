@@ -89,6 +89,9 @@ def play(normalized_data):
             velocity_of_vehicle = f"v={point['v']:.5} [m/s]"
             create_text(velocity_of_vehicle, 15, (200, 80+50*1))
 
+            yaw_rate = f"yaw={point['yaw_rate']:.5}"
+            create_text(yaw_rate, 15, (200, 80+50*1+20))
+
             ##
             # Legend
             ##
