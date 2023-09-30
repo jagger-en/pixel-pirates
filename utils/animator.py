@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
+import math
+from utils import scaler
+import sys
 import os
-import random
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
-import sys
-from utils import scaler
-import math
+import random
 
 WIDTH = 800
 HEIGHT = 600
@@ -22,15 +22,16 @@ MIN_R = 0
 MAX_R = 120
 
 FONT_SIZE = 15
-COLOR_CENTER = (127, 255, 212, 128)
+COLOR_CENTER = (128, 128, 128, 128)
 
 RADIUS_CAR_CIRCLE_px = 2  # Toyota corolla
 RADIUS_OBJ_CIRCLE_px = 1  # We assume this size of an object
 ALARM_DIST = RADIUS_CAR_CIRCLE_px * 5
 
 
-def play(normalized_data, frames_per_second, objects, object_colors):
-    object_colors_mappings = {o:c for c, o in zip(object_colors, objects)}
+def play(normalized_data, frames_per_second, object_names, object_colors):
+    object_colors_mappings = {o: c for c, o in zip(object_colors, object_names)}
+
     def scale_x(x):
         return scaler.scale_linearly(given_value=x, right_lim=[MIN_X, MAX_X], left_lim=[0, WIDTH])
 
@@ -142,13 +143,15 @@ def play(normalized_data, frames_per_second, objects, object_colors):
                                 text_color)
 
             draw_legend_item(0, 'Our car', COLOR_CENTER)
-            draw_legend_item(1, '1st', object_colors_mappings['1st'])
-            draw_legend_item(2, '2nd', object_colors_mappings['2nd'])
-            draw_legend_item(3, '3rd', object_colors_mappings['3rd'])
-            draw_legend_item(4, '4th', object_colors_mappings['4th'])
+            iterate_legend(draw_legend_item, object_names, object_colors_mappings)
 
         pygame.display.flip()
         clock.tick(frames_per_second)
+
+
+def iterate_legend(func, object_names, object_colors_mappings):
+    for idx, obj_name in enumerate(object_names):
+        func(idx + 1, obj_name, object_colors_mappings[obj_name])
 
 
 def _calc_magnitude(left, right):
@@ -169,6 +172,7 @@ def generate_colors(num_colors):
     g = _get_random_num(0, 255)
     b = _get_random_num(0, 255)
     return [(r, g, b) for _ in range(num_colors)]
+
 
 def _get_random_num(start, end):
     return random.randint(start, end)

@@ -4,6 +4,9 @@ CraftHub - Bosch Hackathon 2024
 
 # Script usage
 ```sh
-./pixel-pirates.py --input-file ./data/DevelopmentData.xlsx --
-fps 100
+./pixel-pirates.py \
+    --input-file ./data/DevelopmentData.xlsx \
+    --fps 1000 \
+    --objects First,Second,Third,Fourth \
+    --object-colors 1:168:255,9:230:71,230:144:9,254:24:10
 ```

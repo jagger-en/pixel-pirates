@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-def normalize_df(df, delta):
+def normalize_df(df, delta, object_names):
     normalized_points_list = []
-    for object in ['1st', '2nd', '3rd', '4th']:
-        x_data = df[f'{object}ODist_X [m]']
-        y_data = df[f'{object}ODist_Y [m]']
+    for object in object_names:
+        x_data = df[f'{object}ObjectDistance_X']
+        y_data = df[f'{object}ObjectDistance_Y']
         t_data = df['Timestamp']
-        v_data = df['VehicleSpeed [m/s]']
-        vx_data = df[f'{object}OSp_X [m/s]']
-        vy_data = df[f'{object}OSp_Y [m/s]']
+        v_data = df['VehicleSpeed']
+        vx_data = df[f'{object}ObjectSpeed_X']
+        vy_data = df[f'{object}ObjectSpeed_Y']
         yaw_rate = df[f'YawRate']
         pts = _get_normalized_points(x_data, y_data, t_data,
                                      v_data, vx_data, vy_data, yaw_rate, delta)
